@@ -7,13 +7,16 @@ import {
 import { resolveConfiguredMode } from '@/lib/runtimeMode';
 
 describe('HostGraph source-honest read state', () => {
-  it('resolves only DEMO or LIVE as configured modes', () => {
+  it('requires explicit DEMO opt-in; missing or invalid configuration is LIVE', () => {
     expect(resolveConfiguredMode('DEMO')).toBe('DEMO');
     expect(resolveConfiguredMode('LIVE')).toBe('LIVE');
-    expect(resolveConfiguredMode('anything-else')).toBe('DEMO');
+    expect(resolveConfiguredMode('anything-else')).toBe('LIVE');
+    expect(resolveConfiguredMode(undefined)).toBe('LIVE');
+    expect(resolveConfiguredMode('')).toBe('LIVE');
+    expect(resolveConfiguredMode('demo')).toBe('LIVE');
   });
 
-  it('starts DEMO from synthetic fixture data without probing live sources', () => {
+  it('starts DEMO from fixture data only after explicit operator opt-in', () => {
     const state = createInitialReadState('DEMO', { value: 'fixture' });
     expect(state.mode).toBe('DEMO');
     expect(state.data).toEqual({ value: 'fixture' });
